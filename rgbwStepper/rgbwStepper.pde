@@ -48,7 +48,7 @@ class TestObserver implements Observer {
 public void controlEvent(ControlEvent theEvent) {
   // Array of R,G,B hex values
   int[] hexArray = {
-    #00ff00, #ff0000, #0000ff
+    #ff0000, #00ff00, #0000ff
   };
   // When we cycle through array, move to next LED and return to beginning of array
   // ex: LED_1 = red, LED_1 = green, LED_1 = blue, LED_2 = red, LED_2 = green, etc.
@@ -89,4 +89,3 @@ private void prepareExitHandler () {
   }
   ));
 }
-
