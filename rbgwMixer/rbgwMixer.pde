@@ -36,19 +36,21 @@ class TestObserver implements Observer {
 
 // Setup controlP5 knobs
 void setup() {
-  size(700, 400);
+  size(1300, 400);
   registry = new DeviceRegistry();
   testObserver = new TestObserver();
   registry.addObserver(testObserver);
   prepareExitHandler();
   cp5 = new ControlP5(this);
-  int dist = 125;
-
+  int radius = 100;
+  int h = height/4; 
+  int spacing = 300;
+  
   Rknob = cp5.addKnob("red_knob")
     .setRange(0, 255)
       .setValue(0)
-        .setPosition(dist, height/2)
-          .setRadius(50)
+        .setPosition(radius, h)
+          .setRadius(radius)
             .setColorBackground(#943232)
               .setColorForeground(bgColor)
                 .setColorActive(#ffffff)
@@ -57,8 +59,8 @@ void setup() {
   Gknob = cp5.addKnob("green_knob")
     .setRange(0, 255)
       .setValue(0)
-        .setPosition(dist*2, height/2)
-          .setRadius(50)
+        .setPosition(radius+spacing, h)
+          .setRadius(radius)
             .setColorBackground(#559e83)
               .setColorForeground(bgColor)
                 .setColorActive(#ffffff)
@@ -67,8 +69,8 @@ void setup() {
   Bknob = cp5.addKnob("blue_knob")
     .setRange(0, 255)
       .setValue(0)
-        .setPosition(dist*3, height/2)
-          .setRadius(50)
+        .setPosition(radius+2*spacing, h)
+          .setRadius(radius)
             .setColorBackground(#326194)
               .setColorForeground(bgColor)
                 .setColorActive(#ffffff)
@@ -77,8 +79,8 @@ void setup() {
   Wknob = cp5.addKnob("white_knob")
     .setRange(0, 255)
       .setValue(0)
-        .setPosition(dist*4, height/2)
-          .setRadius(50)
+        .setPosition(radius+3*spacing, h)
+          .setRadius(radius)
             .setColorBackground(#ffffff)
               .setColorValueLabel(#0f0f0f)
                 .setColorForeground(bgColor)
