@@ -1,8 +1,10 @@
 /*
 John Farrell
- Simple RBG color mixer for use with Heroic Robotics PixelPusher
- Assumes you are working with 3-channel RGB pixel strips
- */
+ RGBW color mixer for use with Heroic Robotics PixelPusher
+ Works to spoof the PixelPusher to work with 4-channel LEDs instead of 3-channel
+ The pattern of the LEDs is most important - check out the RGBW debugger sketch to find out
+ My LED strip was G-R-B-W, so adjust accordingly
+*/
 
 // Import HeroicRobot and ControlP5
 import controlP5.*;
@@ -20,26 +22,19 @@ Knob Gknob;
 Knob Bknob;
 Knob Wknob;
 int bgColor = #3B3B3B;
-String r;
-String g;
-String b;
-String w;
-String[] globalColor= {   // Int[], all vals 0
-  r, g, b, w
-};
-
 
 class TestObserver implements Observer {
   public boolean hasStrips = false;
   public void update(Observable registry, Object updatedDevice) {
-    //println("Registry changed!");
+    println("Registry changed!");
     if (updatedDevice != null) {
-      //println("Device change: " + updatedDevice);
+      println("Device change: " + updatedDevice);
     }
     this.hasStrips = true;
   }
 }
 
+// Setup controlP5 knobs
 void setup() {
   size(700, 400);
   registry = new DeviceRegistry();
@@ -92,55 +87,30 @@ void setup() {
 }
 
 
-
-//int[] translation(int pixel) {
-//  int mod =  pixel % 4;
-//  String[] newColor = {   // int[]
-//    globalColor[(mod+0)%4], 
-//    globalColor[(mod+1)%4], 
-//    globalColor[(mod+2)%4]
-//  };
-//  return newColor;
-//}
-
-
-
 void draw() {
   background(bgColor);
+  // Get the values from our 4 knobs
   int r = int(Rknob.value());
   int g = int(Gknob.value());
   int b = int(Bknob.value());
   int w = int(Wknob.value());
-//  globalColor[0] = r;
-//  globalColor[1] = g;
-//  globalColor[2] = b;
-//  globalColor[3] = w;
 
   if (testObserver.hasStrips) {
     registry.startPushing();
     List<Strip> strips = registry.getStrips();
     for (Strip strip : strips) {
       int stripLength = strip.getLength();
-      ArrayList<Integer> badlist = new ArrayList<Integer>();
-      int badpix;
-
-
-
-//      for (int i = 0; i < stripLength; i++) {
-//        String result[] = translation(i);
-//        println(result);
-//      }
-
-
-
-
-      // PATTERN
-      //strip.setPixel(color(r,g,b),0);
-      //strip.setPixel(color(g,w,r),1);
-      //strip.setPixel(color(w,b,g),2);
-      //strip.setPixel(color(b,r,w),3);
-
-
+      /* 
+      // PATTERN - most important part to figure out
+      // The pattern resets every 4 LEDs
+      //// 4 channels to 3 channels, 12 steps = 4 pixels
+      strip.setPixel(color(r,g,b),0);
+      strip.setPixel(color(g,w,r),1);
+      strip.setPixel(color(w,b,g),2);
+      strip.setPixel(color(b,r,w),3);
+      */
+      
+      // This is inelegant, but it works for now.  Working to clean up
       for (int i=0; i<stripLength; i+=4) {
         strip.setPixel(color(r, g, b), i);
       }
@@ -153,12 +123,6 @@ void draw() {
       for (int i=3; i<stripLength; i+=4) {
         strip.setPixel(color(b, r, w), i);
       }
-
-
-
-
-
-      // }
     }
   }
 }
