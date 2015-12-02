@@ -2,7 +2,7 @@
 John Farrell
  Simple RBG color mixer for use with Heroic Robotics PixelPusher
  Assumes you are working with 3-channel RGB pixel strips
-*/
+ */
 
 // Import HeroicRobot and ControlP5
 import controlP5.*;
@@ -38,11 +38,12 @@ void setup() {
   registry.addObserver(testObserver);
   prepareExitHandler();
   cp5 = new ControlP5(this);
-
+  int dist = 125;
+  
   Rknob = cp5.addKnob("red_knob")
     .setRange(0, 255)
       .setValue(0)
-        .setPosition(100, height/2)
+        .setPosition(dist, height/2)
           .setRadius(50)
             .setColorBackground(#943232)
               .setColorForeground(bgColor)
@@ -52,7 +53,7 @@ void setup() {
   Gknob = cp5.addKnob("green_knob")
     .setRange(0, 255)
       .setValue(0)
-        .setPosition(500, height/2)
+        .setPosition(dist*2, height/2)
           .setRadius(50)
             .setColorBackground(#559e83)
               .setColorForeground(bgColor)
@@ -62,12 +63,13 @@ void setup() {
   Bknob = cp5.addKnob("blue_knob")
     .setRange(0, 255)
       .setValue(0)
-        .setPosition(300, height/2)
+        .setPosition(dist*3, height/2)
           .setRadius(50)
             .setColorBackground(#326194)
               .setColorForeground(bgColor)
                 .setColorActive(#ffffff)
                   .setDragDirection(Knob.VERTICAL);
+
 }
 
 void draw() {

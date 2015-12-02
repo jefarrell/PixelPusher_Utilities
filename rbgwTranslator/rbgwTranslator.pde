@@ -1,55 +1,181 @@
+/*
+John Farrell
+ Simple RBG color mixer for use with Heroic Robotics PixelPusher
+ Assumes you are working with 3-channel RGB pixel strips
+ */
+
+// Import HeroicRobot and ControlP5
+import controlP5.*;
+import com.heroicrobot.dropbit.registry.*;
+import com.heroicrobot.dropbit.devices.pixelpusher.Pixel;
+import com.heroicrobot.dropbit.devices.pixelpusher.Strip;
+import java.util.*;
+
+// PixelPusher classes and knobs
+DeviceRegistry registry;
+TestObserver testObserver;
+ControlP5 cp5;
+Knob Rknob;
+Knob Gknob;
+Knob Bknob;
+Knob Wknob;
+int bgColor = #3B3B3B;
+String r;
+String g;
+String b;
+String w;
+String[] globalColor= {   // Int[], all vals 0
+  r, g, b, w
+};
+
+
+class TestObserver implements Observer {
+  public boolean hasStrips = false;
+  public void update(Observable registry, Object updatedDevice) {
+    //println("Registry changed!");
+    if (updatedDevice != null) {
+      //println("Device change: " + updatedDevice);
+    }
+    this.hasStrips = true;
+  }
+}
 
 void setup() {
-  //int result[] = translation(3, 2  );
+  size(700, 400);
+  registry = new DeviceRegistry();
+  testObserver = new TestObserver();
+  registry.addObserver(testObserver);
+  prepareExitHandler();
+  cp5 = new ControlP5(this);
+  int dist = 125;
+
+  Rknob = cp5.addKnob("red_knob")
+    .setRange(0, 255)
+      .setValue(0)
+        .setPosition(dist, height/2)
+          .setRadius(50)
+            .setColorBackground(#943232)
+              .setColorForeground(bgColor)
+                .setColorActive(#ffffff)
+                  .setDragDirection(Knob.VERTICAL);
+
+  Gknob = cp5.addKnob("green_knob")
+    .setRange(0, 255)
+      .setValue(0)
+        .setPosition(dist*2, height/2)
+          .setRadius(50)
+            .setColorBackground(#559e83)
+              .setColorForeground(bgColor)
+                .setColorActive(#ffffff)
+                  .setDragDirection(Knob.VERTICAL);
+
+  Bknob = cp5.addKnob("blue_knob")
+    .setRange(0, 255)
+      .setValue(0)
+        .setPosition(dist*3, height/2)
+          .setRadius(50)
+            .setColorBackground(#326194)
+              .setColorForeground(bgColor)
+                .setColorActive(#ffffff)
+                  .setDragDirection(Knob.VERTICAL);
+
+  Wknob = cp5.addKnob("white_knob")
+    .setRange(0, 255)
+      .setValue(0)
+        .setPosition(dist*4, height/2)
+          .setRadius(50)
+            .setColorBackground(#ffffff)
+              .setColorValueLabel(#0f0f0f)
+                .setColorForeground(bgColor)
+                  .setColorActive(#0f0f0f)
+                    .setDragDirection(Knob.VERTICAL);
 }
+
+
+
+//int[] translation(int pixel) {
+//  int mod =  pixel % 4;
+//  String[] newColor = {   // int[]
+//    globalColor[(mod+0)%4], 
+//    globalColor[(mod+1)%4], 
+//    globalColor[(mod+2)%4]
+//  };
+//  return newColor;
+//}
+
+
 
 void draw() {
-  test();
-}
+  background(bgColor);
+  int r = int(Rknob.value());
+  int g = int(Gknob.value());
+  int b = int(Bknob.value());
+  int w = int(Wknob.value());
+//  globalColor[0] = r;
+//  globalColor[1] = g;
+//  globalColor[2] = b;
+//  globalColor[3] = w;
 
-// Place a Pixel and Channel in RGBW, find RGB Equivalent
-int[] translation(int pixel, int channel) {
-  int rgbw = 4; //pixels per channel RGBW
-  int rgb = 3; //pixels per channel RGB
+  if (testObserver.hasStrips) {
+    registry.startPushing();
+    List<Strip> strips = registry.getStrips();
+    for (Strip strip : strips) {
+      int stripLength = strip.getLength();
+      ArrayList<Integer> badlist = new ArrayList<Integer>();
+      int badpix;
 
-  int a = pixel * rgbw;
-  int b = rgbw - channel;
-  int t = a - b;
 
-  int remainder = t % rgb;
-  println(" r::::::: " + remainder);
 
-  if (remainder > 0) {
-    int c = (t / rgb) + 1;
-    println("pixel: " + c + ", channel (r): " + remainder);
-    return new int[] {
-      c, remainder
-    };
-  } else {
-    int c = t / rgb;
-    println("pixel: " + c + ", channel (y): " + rgb);
-    return new int[] {
-      c, rgb
-    };
+//      for (int i = 0; i < stripLength; i++) {
+//        String result[] = translation(i);
+//        println(result);
+//      }
+
+
+
+
+      // PATTERN
+      //strip.setPixel(color(r,g,b),0);
+      //strip.setPixel(color(g,w,r),1);
+      //strip.setPixel(color(w,b,g),2);
+      //strip.setPixel(color(b,r,w),3);
+
+
+      for (int i=0; i<stripLength; i+=4) {
+        strip.setPixel(color(r, g, b), i);
+      }
+      for (int i=1; i<stripLength; i+=4) {
+        strip.setPixel(color(g, w, r), i);
+      }
+      for (int i=2; i<stripLength; i+=4) {
+        strip.setPixel(color(w, b, g), i);
+      }
+      for (int i=3; i<stripLength; i+=4) {
+        strip.setPixel(color(b, r, w), i);
+      }
+
+
+
+
+
+      // }
+    }
   }
 }
 
-
-void test() {
-  // Array showing 4 values * 4 pixels
-  // RGBW and RGB will line up every 16 steps
-  // My strip is G~R~B~W, adjust order accordingly
-  int [] RGBWhexArray = {
-    #00ff00, #ff0000, #0000ff, #ffffff, 
-    #00ff00, #ff0000, #0000ff, #ffffff, 
-    #00ff00, #ff0000, #0000ff, #ffffff, 
-    #00ff00, #ff0000, #0000ff, #ffffff,
-  };
-
-
-  for (int i = 0; i < 16; i++) {
-    int val = RGBWhexArray[i];
-    println("val:  " + val + " i:   " + i/3);
+private void prepareExitHandler () {
+  Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+    public void run () {
+      System.out.println("Shutdown hook running");
+      List<Strip> strips = registry.getStrips();
+      for (Strip strip : strips) {
+        for (int i=0; i<strip.getLength (); i++)
+          strip.setPixel(#000000, i);
+      }
+      for (int i=0; i<100000; i++)
+        Thread.yield();
+    }
   }
+  ));
 }
 

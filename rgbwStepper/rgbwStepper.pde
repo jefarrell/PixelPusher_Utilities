@@ -32,6 +32,9 @@ void setup() {
   registry.addObserver(testObserver);
   prepareExitHandler();
 }
+void draw() {
+  println("LEDdraw:::::::: " + LED + "  and i:::::::::: " + i);
+}
 
 class TestObserver implements Observer {
   public boolean hasStrips = false;
