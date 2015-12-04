@@ -83,10 +83,8 @@ void draw() {
   color c = color(r, g, b);
   // Make a hex string out of it
   String hexVal = hex(c);
-  // Then, make the equivalent int so we can use it 
-  int intHex = unhex(hexVal);
   textSize(50);
-  fill(intHex);
+  fill(c);
   text(hexVal, width/2, height/5);
 
   if (testObserver.hasStrips) {
@@ -95,7 +93,7 @@ void draw() {
     for (Strip strip : strips) {
       // Set every pixel to the color we are mixing
       for (int i = 1; i < strip.getLength (); i++) {
-        strip.setPixel(intHex, i);
+        strip.setPixel(c, i);
       }
     }
   }
