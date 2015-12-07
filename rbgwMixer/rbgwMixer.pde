@@ -4,6 +4,7 @@ John Farrell
  Works to spoof the PixelPusher to work with 4-channel LEDs instead of 3-channel
  The pattern of the LEDs is most important - check out the RGBW debugger sketch to find out
  My LED strip was G-R-B-W, so adjust accordingly
+ // Needs to run in Processing 2 until controlp5 is updated for Processing 3 //
  */
 
 // Import HeroicRobot and ControlP5
