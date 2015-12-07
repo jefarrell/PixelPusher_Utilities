@@ -100,17 +100,15 @@ void draw() {
   int g = int(Gknob.value());
   int b = int(Bknob.value());
   int w = int(Wknob.value());
+  
+  // Display UI Values
   textSize(50);
-  // red knob display
   fill(r, 0, 0, 150);
   text(r, Rknob.getPosition()[0]+radius/2, 75);
-  // green knob display
   fill(0, g, 0, 150);
   text(g, Gknob.getPosition()[0]+radius/2, 75);
-  // blue knob display
   fill(0, 0, b, 150);
   text(b, Bknob.getPosition()[0]+radius/2, 75);
-  // white knob display
   fill(w, 150);
   text(w, Wknob.getPosition()[0]+radius/2, 75);
 
@@ -122,14 +120,14 @@ void draw() {
     for (Strip strip : strips) {
       int stripLength = strip.getLength();
       /* 
-       // PATTERN - most important part to figure out
-       // The pattern resets every 4 LEDs
-       //// 4 channels to 3 channels, 12 steps = 4 pixels
-       strip.setPixel(color(r,g,b),0);
-       strip.setPixel(color(g,w,r),1);
-       strip.setPixel(color(w,b,g),2);
-       strip.setPixel(color(b,r,w),3);
-       */
+         // PATTERN - most important part to figure out
+         // The pattern resets every 4 LEDs
+         // 4 channels to 3 channels, 12 steps = 4 pixels
+         strip.setPixel(color(r,g,b),0);
+         strip.setPixel(color(g,w,r),1);
+         strip.setPixel(color(w,b,g),2);
+         strip.setPixel(color(b,r,w),3);
+      */
 
       // This is inelegant, but it works for now.  Working to clean up
       for (int i=0; i<stripLength; i+=4) {
