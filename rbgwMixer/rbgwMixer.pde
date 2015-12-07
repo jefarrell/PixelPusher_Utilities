@@ -4,7 +4,7 @@ John Farrell
  Works to spoof the PixelPusher to work with 4-channel LEDs instead of 3-channel
  The pattern of the LEDs is most important - check out the RGBW debugger sketch to find out
  My LED strip was G-R-B-W, so adjust accordingly
-*/
+ */
 
 // Import HeroicRobot and ControlP5
 import controlP5.*;
@@ -22,6 +22,7 @@ Knob Gknob;
 Knob Bknob;
 Knob Wknob;
 int bgColor = #3B3B3B;
+int radius = 100;
 
 class TestObserver implements Observer {
   public boolean hasStrips = false;
@@ -42,19 +43,20 @@ void setup() {
   registry.addObserver(testObserver);
   prepareExitHandler();
   cp5 = new ControlP5(this);
-  int radius = 100;
+
   int h = height/4; 
   int spacing = 300;
-  
+
   Rknob = cp5.addKnob("red_knob")
     .setRange(0, 255)
       .setValue(0)
         .setPosition(radius, h)
           .setRadius(radius)
             .setColorBackground(#943232)
-              .setColorForeground(bgColor)
-                .setColorActive(#ffffff)
-                  .setDragDirection(Knob.VERTICAL);
+              .setLabelVisible(false)
+                .setColorForeground(#000000)
+                  .setColorActive(#ffffff)
+                    .setDragDirection(Knob.VERTICAL);
 
   Gknob = cp5.addKnob("green_knob")
     .setRange(0, 255)
@@ -62,9 +64,10 @@ void setup() {
         .setPosition(radius+spacing, h)
           .setRadius(radius)
             .setColorBackground(#559e83)
-              .setColorForeground(bgColor)
-                .setColorActive(#ffffff)
-                  .setDragDirection(Knob.VERTICAL);
+              .setLabelVisible(false)
+                .setColorForeground(#000000)
+                  .setColorActive(#ffffff)
+                    .setDragDirection(Knob.VERTICAL);
 
   Bknob = cp5.addKnob("blue_knob")
     .setRange(0, 255)
@@ -72,9 +75,10 @@ void setup() {
         .setPosition(radius+2*spacing, h)
           .setRadius(radius)
             .setColorBackground(#326194)
-              .setColorForeground(bgColor)
-                .setColorActive(#ffffff)
-                  .setDragDirection(Knob.VERTICAL);
+              .setLabelVisible(false)
+                .setColorForeground(#000000)
+                  .setColorActive(#ffffff)
+                    .setDragDirection(Knob.VERTICAL);
 
   Wknob = cp5.addKnob("white_knob")
     .setRange(0, 255)
@@ -82,36 +86,51 @@ void setup() {
         .setPosition(radius+3*spacing, h)
           .setRadius(radius)
             .setColorBackground(#ffffff)
-              .setColorValueLabel(#0f0f0f)
-                .setColorForeground(bgColor)
-                  .setColorActive(#0f0f0f)
+              .setLabelVisible(false)
+                .setColorForeground(#000000)
+                  .setColorActive(#C9C9C9)
                     .setDragDirection(Knob.VERTICAL);
 }
 
 
 void draw() {
-  background(bgColor);
+  background(#000000);
   // Get the values from our 4 knobs
   int r = int(Rknob.value());
   int g = int(Gknob.value());
   int b = int(Bknob.value());
   int w = int(Wknob.value());
+  textSize(50);
+  // red knob display
+  fill(r, 0, 0, 150);
+  text(r, Rknob.getPosition()[0]+radius/2, 75);
+  // green knob display
+  fill(0, g, 0, 150);
+  text(g, Gknob.getPosition()[0]+radius/2, 75);
+  // blue knob display
+  fill(0, 0, b, 150);
+  text(b, Bknob.getPosition()[0]+radius/2, 75);
+  // white knob display
+  fill(w, 150);
+  text(w, Wknob.getPosition()[0]+radius/2, 75);
 
+  // If we have strips
+  //// Start pushing pixels
   if (testObserver.hasStrips) {
     registry.startPushing();
     List<Strip> strips = registry.getStrips();
     for (Strip strip : strips) {
       int stripLength = strip.getLength();
       /* 
-      // PATTERN - most important part to figure out
-      // The pattern resets every 4 LEDs
-      //// 4 channels to 3 channels, 12 steps = 4 pixels
-      strip.setPixel(color(r,g,b),0);
-      strip.setPixel(color(g,w,r),1);
-      strip.setPixel(color(w,b,g),2);
-      strip.setPixel(color(b,r,w),3);
-      */
-      
+       // PATTERN - most important part to figure out
+       // The pattern resets every 4 LEDs
+       //// 4 channels to 3 channels, 12 steps = 4 pixels
+       strip.setPixel(color(r,g,b),0);
+       strip.setPixel(color(g,w,r),1);
+       strip.setPixel(color(w,b,g),2);
+       strip.setPixel(color(b,r,w),3);
+       */
+
       // This is inelegant, but it works for now.  Working to clean up
       for (int i=0; i<stripLength; i+=4) {
         strip.setPixel(color(r, g, b), i);
