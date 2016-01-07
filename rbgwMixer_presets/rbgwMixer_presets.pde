@@ -5,7 +5,9 @@ import com.heroicrobot.dropbit.registry.*;
 import com.heroicrobot.dropbit.devices.pixelpusher.Pixel;
 import com.heroicrobot.dropbit.devices.pixelpusher.Strip;
 import java.util.*;
-
+JSONObject json;
+PrintWriter output;
+JSONArray values;
 // PixelPusher classes and knobs
 //DeviceRegistry registry;
 //TestObserver testObserver;
@@ -18,7 +20,10 @@ Knob Wknob;
 int radius = 100;
 int counter;
 int buttonCount = 10;
+boolean saveButton = false;
 
+
+// Arrays for each button to store values
 int[] button_1 = new int[4];
 int[] button_2 = new int[4];
 int[] button_3 = new int[4];
@@ -48,7 +53,7 @@ class TestObserver implements Observer {
  }
  */
 
-
+// Make our hashmap
 public void mapMaker() {
   m1.put("one", button_1);
   m1.put("two", button_2);
@@ -79,10 +84,9 @@ void setup() {
 
   /* 
    
-   MAKE KNOBS
+   MAKE KNOBS  ///////////////////////////
    
    */
-
   Rknob = cp5.addKnob("red_knob")
     .setRange(0, 255)
       .setValue(0)
@@ -130,15 +134,15 @@ void setup() {
 
   /* 
    
-   MAKE BUTTONS
+   MAKE BUTTONS  ///////////////////////////
    
    */
   color white = color(255);
   color black = color(0);
   int buttonW = 75;
   int buttonH = 30;
-  int buttonY = 450;
-  int bSpace = 25;
+  int buttonY = 400;
+  int bSpace = 150;
   int w = 100;
 
   cp5.addButton("one")
@@ -216,24 +220,29 @@ void setup() {
             .setColorBackground(white);
 };
 
-//  An event that runs every time a button value changes  
-///  This includes on sketch load
-///  Therefore, we need some checking mechanisms
-/////  First, a counter to negate the control events on sketch load
-/////  Then, we want to discount events from the color knobs
+
+
+//  ControlEvent runs every time a button value changes  
+//  This includes on sketch load
+//  Therefore, we need some checking mechanisms
 public void controlEvent(ControlEvent theEvent) {
   String controlNum = theEvent.getController().getName();
   boolean checker = controlNum.endsWith("knob");
   float buttonSwitch = cp5.getController(controlNum).getValue();
+
+  // Negates events that happen on sketch load
   if (counter < buttonCount) {
   } else {
+    // Make sure it's a button, not a knob
     if (!checker) {
+      // First time the button is clicked?
       if (buttonSwitch == 0.0) {
         cp5.getController(controlNum).setBroadcast(false);
         cp5.getController(controlNum).setValue(1.0);
         cp5.getController(controlNum).setBroadcast(true);
         initialClick(controlNum);
       } else {
+        // Button has been clicked before
         valueRecall(controlNum);
       };
     };
@@ -243,9 +252,8 @@ public void controlEvent(ControlEvent theEvent) {
 
 
 
-//  Handle button clicks
-//  First, the button click needs to save the current values
-///  Then, more clicks on that same button need to recall those values
+//  Handle first button click
+//  Change the color, then save the current values of the knobs to our hashmap
 public void initialClick (String buttonNum) {
   color gray = color(125);
   cp5.getController(buttonNum).setColorBackground(gray);
@@ -263,7 +271,8 @@ public void initialClick (String buttonNum) {
 }
 
 
-//  Set knobs to values stored in each button
+//  If the button has already been clicked 
+//  Recall the knob values that we have stored in our hashmap
 public void valueRecall(String buttonNum) {
   int vals[] = m1.get(buttonNum);
   cp5.getController("red_knob").setValue(vals[0]);
@@ -337,9 +346,45 @@ void draw() {
    }
    
    */
+
+  //  Save button - easier than adding another cp5 button
+  fill(255);
+  if (mouseX > 1200 && mouseX < 1275 && mouseY > 25 && mouseY < 100) {
+    fill(0, 116, 217);
+  }
+  rect(1200, 25, 75, 75);
+};
+
+void mouseClicked() {
+  if (mouseX > 1200 && mouseX < 1275 && mouseY > 25 && mouseY < 100) {
+    saveButton = !saveButton;
+    println("save " + saveButton);
+    saveJSON();
+  }
 }
 
+public void saveJSON() {
 
+  values = new JSONArray();
+  int i = 0;
+  for (Map.Entry m : m1.entrySet ()) {
+    JSONObject colorValues = new JSONObject();
+    int[] gVal = (int[]) m.getValue();
+    String gKey = (String) m.getKey();
+
+
+
+    colorValues.setInt("red: ", gVal[0]);
+    colorValues.setInt("green: ", gVal[1]);
+    colorValues.setInt("blue: ", gVal[2]);
+    colorValues.setInt("white: ", gVal[3]);
+    colorValues.setString("button number ", gKey);
+    
+    values.setJSONObject(i, colorValues);
+    i++;
+  };
+  saveJSONArray(values, "output.json");
+}
 
 /*
 
