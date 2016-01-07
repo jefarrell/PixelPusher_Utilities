@@ -14,14 +14,21 @@ Knob Rknob;
 Knob Gknob;
 Knob Bknob;
 Knob Wknob;
-int bgColor = #3B3B3B;
+
 int radius = 100;
 int counter;
-int buttonCount = 2;
+int buttonCount = 10;
 
 int[] button_1 = new int[4];
 int[] button_2 = new int[4];
 int[] button_3 = new int[4];
+int[] button_4 = new int[4];
+int[] button_5 = new int[4];
+int[] button_6 = new int[4];
+int[] button_7 = new int[4];
+int[] button_8 = new int[4];
+int[] button_9 = new int[4];
+int[] button_10 = new int[4];
 
 HashMap<String, int[]> m1 = new HashMap<String, int[]>();
 
@@ -45,12 +52,21 @@ class TestObserver implements Observer {
 public void mapMaker() {
   m1.put("one", button_1);
   m1.put("two", button_2);
+  m1.put("three", button_3);
+  m1.put("four", button_4);
+  m1.put("five", button_5);
+  m1.put("six", button_6);
+  m1.put("seven", button_7);
+  m1.put("eight", button_8);
+  m1.put("nine", button_9);
+  m1.put("ten", button_10);
 }
 
 // Setup controlP5 knobs
 void setup() {
   mapMaker();
   size(1300, 500);
+  int bgColor = #3B3B3B;
   //  registry = new DeviceRegistry();
   //  testObserver = new TestObserver();
   //  registry.addObserver(testObserver);
@@ -119,22 +135,86 @@ void setup() {
    */
   color white = color(255);
   color black = color(0);
+  int buttonW = 75;
+  int buttonH = 30;
+  int buttonY = 450;
+  int bSpace = 25;
+  int w = 100;
 
   cp5.addButton("one")
     .setColorCaptionLabel(black)
       .setValue(0)
-        .setPosition(100, 450)
-          .setSize(100, 30)
+        .setPosition(bSpace, buttonY)
+          .setSize(buttonW, buttonH)
             .setColorBackground(white);
 
   cp5.addButton("two")
     .setColorCaptionLabel(black)
       .setValue(0)
-        .setPosition(300, 450)
-          .setSize(100, 30)
+        .setPosition(bSpace+w, buttonY)
+          .setSize(buttonW, buttonH)
             .setColorBackground(white);
-}
 
+  cp5.addButton("three")
+    .setColorCaptionLabel(black)
+      .setValue(0)
+        .setPosition(bSpace+2*w, buttonY)
+          .setSize(buttonW, buttonH)
+            .setColorBackground(white);
+
+  cp5.addButton("four")
+    .setColorCaptionLabel(black)
+      .setValue(0)
+        .setPosition(bSpace+3*w, buttonY)
+          .setSize(buttonW, buttonH)
+            .setColorBackground(white);
+
+  cp5.addButton("five")
+    .setColorCaptionLabel(black)
+      .setValue(0)
+        .setPosition(bSpace+4*w, buttonY)
+          .setSize(buttonW, buttonH)
+            .setColorBackground(white);
+
+  cp5.addButton("six")
+    .setColorCaptionLabel(black)
+      .setValue(0)
+        .setPosition(bSpace+5*w, buttonY)
+          .setSize(buttonW, buttonH)
+            .setColorBackground(white);
+
+
+  cp5.addButton("seven")
+    .setColorCaptionLabel(black)
+      .setValue(0)
+        .setPosition(bSpace+6*w, buttonY)
+          .setSize(buttonW, buttonH)
+            .setColorBackground(white);
+
+
+  cp5.addButton("eight")
+    .setColorCaptionLabel(black)
+      .setValue(0)
+        .setPosition(bSpace+7*w, buttonY)
+          .setSize(buttonW, buttonH)
+            .setColorBackground(white);
+
+
+  cp5.addButton("nine")
+    .setColorCaptionLabel(black)
+      .setValue(0)
+        .setPosition(bSpace+8*w, buttonY)
+          .setSize(buttonW, buttonH)
+            .setColorBackground(white);
+
+
+  cp5.addButton("ten")
+    .setColorCaptionLabel(black)
+      .setValue(0)
+        .setPosition(bSpace+9*w, buttonY)
+          .setSize(buttonW, buttonH)
+            .setColorBackground(white);
+};
 
 //  An event that runs every time a button value changes  
 ///  This includes on sketch load
@@ -142,37 +222,34 @@ void setup() {
 /////  First, a counter to negate the control events on sketch load
 /////  Then, we want to discount events from the color knobs
 public void controlEvent(ControlEvent theEvent) {
-  color gray = color(125);
   String controlNum = theEvent.getController().getName();
   boolean checker = controlNum.endsWith("knob");
+  float buttonSwitch = cp5.getController(controlNum).getValue();
   if (counter < buttonCount) {
   } else {
     if (!checker) {
-      float buttonSwitch = cp5.getController(controlNum).getValue();
-      println("before: " + cp5.getController(controlNum).getValue());
       if (buttonSwitch == 0.0) {
         cp5.getController(controlNum).setBroadcast(false);
         cp5.getController(controlNum).setValue(1.0);
-        cp5.getController(controlNum).setColorBackground(gray);
         cp5.getController(controlNum).setBroadcast(true);
-        buttonClick(controlNum);
+        initialClick(controlNum);
       } else {
-       valueSet(controlNum); 
-      }
-      println("after: " + theEvent.getController().getValue());
-      //buttonClick(controlNum);
-    }
-  }
+        valueRecall(controlNum);
+      };
+    };
+  };
   counter++;
-}
+};
 
 
 
 //  Handle button clicks
 //  First, the button click needs to save the current values
 ///  Then, more clicks on that same button need to recall those values
-public void buttonClick (String buttonNum) {
-  println("clicked button " + buttonNum);
+public void initialClick (String buttonNum) {
+  color gray = color(125);
+  cp5.getController(buttonNum).setColorBackground(gray);
+
   int redVal = int(cp5.getController("red_knob").getValue());
   int greenVal = int(cp5.getController("green_knob").getValue());
   int blueVal = int(cp5.getController("blue_knob").getValue());
@@ -183,26 +260,11 @@ public void buttonClick (String buttonNum) {
   temp[1] = greenVal;
   temp[2] = blueVal;
   temp[3] = whiteVal;
-
-  println("button 1: " + button_1[0], button_1[1], button_1[2], button_1[3]);
-  println("button 2: " + button_2[0], button_2[1], button_2[2], button_2[3]);
-  
-  float buttonState = cp5.getController(buttonNum).getValue();
-
-  //color gray = color(125);
-  if (buttonState == 1.0) {
-    //cp5.getController(buttonNum).setColorBackground(gray);
-    println("buttonState: " + buttonState);
-  }
-  
-  
 }
 
 
-
-
 //  Set knobs to values stored in each button
-public void valueSet(String buttonNum) {
+public void valueRecall(String buttonNum) {
   int vals[] = m1.get(buttonNum);
   cp5.getController("red_knob").setValue(vals[0]);
   cp5.getController("green_knob").setValue(vals[1]);
