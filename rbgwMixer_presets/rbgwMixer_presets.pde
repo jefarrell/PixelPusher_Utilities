@@ -142,6 +142,7 @@ void setup() {
 /////  First, a counter to negate the control events on sketch load
 /////  Then, we want to discount events from the color knobs
 public void controlEvent(ControlEvent theEvent) {
+  color gray = color(125);
   String controlNum = theEvent.getController().getName();
   boolean checker = controlNum.endsWith("knob");
   if (counter < buttonCount) {
@@ -152,10 +153,14 @@ public void controlEvent(ControlEvent theEvent) {
       if (buttonSwitch == 0.0) {
         cp5.getController(controlNum).setBroadcast(false);
         cp5.getController(controlNum).setValue(1.0);
+        cp5.getController(controlNum).setColorBackground(gray);
         cp5.getController(controlNum).setBroadcast(true);
-      };
+        buttonClick(controlNum);
+      } else {
+       valueSet(controlNum); 
+      }
       println("after: " + theEvent.getController().getValue());
-      buttonClick(controlNum);
+      //buttonClick(controlNum);
     }
   }
   counter++;
@@ -182,14 +187,12 @@ public void buttonClick (String buttonNum) {
   println("button 1: " + button_1[0], button_1[1], button_1[2], button_1[3]);
   println("button 2: " + button_2[0], button_2[1], button_2[2], button_2[3]);
   
-  
-  
-  float buttonSwitch = cp5.getController(buttonNum).getValue();
+  float buttonState = cp5.getController(buttonNum).getValue();
 
-  color gray = color(125);
-  if (buttonSwitch == 1.0) {
-    cp5.getController(buttonNum).setColorBackground(gray);
-    println("buttonSwitch: " + buttonSwitch);
+  //color gray = color(125);
+  if (buttonState == 1.0) {
+    //cp5.getController(buttonNum).setColorBackground(gray);
+    println("buttonState: " + buttonState);
   }
   
   
