@@ -8,10 +8,12 @@ import java.util.*;
 JSONObject json;
 PrintWriter output;
 JSONArray values;
-// PixelPusher classes and knobs
-//DeviceRegistry registry;
-//TestObserver testObserver;
+
+//PixelPusher classes and knobs
+DeviceRegistry registry;
+TestObserver testObserver;
 ControlP5 cp5;
+
 Knob Rknob;
 Knob Gknob;
 Knob Bknob;
@@ -20,7 +22,6 @@ Knob Wknob;
 int radius = 100;
 int counter;
 int buttonCount = 10;
-boolean saveButton = false;
 
 
 // Arrays for each button to store values
@@ -35,23 +36,22 @@ int[] button_8 = new int[4];
 int[] button_9 = new int[4];
 int[] button_10 = new int[4];
 
+// Hashmap - this will store all of the button values we save
 HashMap<String, int[]> m1 = new HashMap<String, int[]>();
 
 
 
-
-/*
 class TestObserver implements Observer {
- public boolean hasStrips = false;
- public void update(Observable registry, Object updatedDevice) {
- println("Registry changed!");
- if (updatedDevice != null) {
- println("Device change: " + updatedDevice);
- }
- this.hasStrips = true;
- }
- }
- */
+  public boolean hasStrips = false;
+  public void update(Observable registry, Object updatedDevice) {
+    println("Registry changed!");
+    if (updatedDevice != null) {
+      println("Device change: " + updatedDevice);
+    }
+    this.hasStrips = true;
+  }
+}
+
 
 // Make our hashmap
 public void mapMaker() {
@@ -67,15 +67,16 @@ public void mapMaker() {
   m1.put("ten", button_10);
 }
 
+
 // Setup controlP5 knobs
 void setup() {
   mapMaker();
   size(1300, 500);
   int bgColor = #3B3B3B;
-  //  registry = new DeviceRegistry();
-  //  testObserver = new TestObserver();
-  //  registry.addObserver(testObserver);
-  //  prepareExitHandler();
+  registry = new DeviceRegistry();
+  testObserver = new TestObserver();
+  registry.addObserver(testObserver);
+  prepareExitHandler();
   cp5 = new ControlP5(this);
 
   int h = height/4; 
@@ -307,64 +308,65 @@ void draw() {
   text(w, Wknob.getPosition()[0]+radius/2, 75);
 
 
-  /*
-
-   
-   // If we have strips
-   //// Start pushing pixels
-   if (testObserver.hasStrips) {
-   registry.startPushing();
-   List<Strip> strips = registry.getStrips();
-   for (Strip strip : strips) {
-   int stripLength = strip.getLength();
-  /* 
-   // PATTERN - most important part to figure out
-   // The pattern resets every 4 LEDs
-   // 4 channels to 3 channels, 12 steps = 4 pixels
-   strip.setPixel(color(r,g,b),0);
-   strip.setPixel(color(g,w,r),1);
-   strip.setPixel(color(w,b,g),2);
-   strip.setPixel(color(b,r,w),3);
-   */
 
 
-  /*
+
+  // If we have strips
+  //// Start pushing pixels
+  if (testObserver.hasStrips) {
+    registry.startPushing();
+    List<Strip> strips = registry.getStrips();
+    for (Strip strip : strips) {
+      int stripLength = strip.getLength();
+      /* 
+       // PATTERN - most important part to figure out
+       // The pattern resets every 4 LEDs
+       // 4 channels to 3 channels, 12 steps = 4 pixels
+       strip.setPixel(color(r,g,b),0);
+       strip.setPixel(color(g,w,r),1);
+       strip.setPixel(color(w,b,g),2);
+       strip.setPixel(color(b,r,w),3);
+       */
+
+
+
       // This is inelegant, but it works for now.  Working to clean up
-   for (int i=0; i<stripLength; i+=4) {
-   strip.setPixel(color(r, g, b), i);
-   }
-   for (int i=1; i<stripLength; i+=4) {
-   strip.setPixel(color(g, w, r), i);
-   }
-   for (int i=2; i<stripLength; i+=4) {
-   strip.setPixel(color(w, b, g), i);
-   }
-   for (int i=3; i<stripLength; i+=4) {
-   strip.setPixel(color(b, r, w), i);
-   }
-   }
-   }
-   
-   */
+      for (int i=0; i<stripLength; i+=4) {
+        strip.setPixel(color(r, g, b), i);
+      }
+      for (int i=1; i<stripLength; i+=4) {
+        strip.setPixel(color(g, w, r), i);
+      }
+      for (int i=2; i<stripLength; i+=4) {
+        strip.setPixel(color(w, b, g), i);
+      }
+      for (int i=3; i<stripLength; i+=4) {
+        strip.setPixel(color(b, r, w), i);
+      }
+    }
+  }
 
-  //  Save button - easier than adding another cp5 button
+
+
+  //  Quick n dirty saving - easier than adding another cp5 button
   fill(255);
   if (mouseX > 1200 && mouseX < 1275 && mouseY > 25 && mouseY < 100) {
     fill(0, 116, 217);
   }
   rect(1200, 25, 75, 75);
-};
+  textSize(15);
+  fill(0);
+  text("Save", 1222, 70);
+}
 
 void mouseClicked() {
   if (mouseX > 1200 && mouseX < 1275 && mouseY > 25 && mouseY < 100) {
-    saveButton = !saveButton;
-    println("save " + saveButton);
     saveJSON();
   }
 }
 
 public void saveJSON() {
-
+  // Read color value entries in hashmap, create array of JSON objects
   values = new JSONArray();
   int i = 0;
   for (Map.Entry m : m1.entrySet ()) {
@@ -372,37 +374,37 @@ public void saveJSON() {
     int[] gVal = (int[]) m.getValue();
     String gKey = (String) m.getKey();
 
+    colorValues.setInt("red", gVal[0]);
+    colorValues.setInt("green", gVal[1]);
+    colorValues.setInt("blue", gVal[2]);
+    colorValues.setInt("white", gVal[3]);
+    colorValues.setString("button number", gKey);
 
-
-    colorValues.setInt("red: ", gVal[0]);
-    colorValues.setInt("green: ", gVal[1]);
-    colorValues.setInt("blue: ", gVal[2]);
-    colorValues.setInt("white: ", gVal[3]);
-    colorValues.setString("button number ", gKey);
-    
     values.setJSONObject(i, colorValues);
     i++;
   };
-  saveJSONArray(values, "output.json");
+  // Make a timestamp to avoid overwriting
+  Calendar now = Calendar.getInstance();
+  String timestamp = String.format("%1$tm%1$td%1$ty_%1$tH%1$tM%1$tS", now);
+
+  saveJSONArray(values, "colors_" + timestamp +".json");
 }
 
-/*
 
- private void prepareExitHandler () {
- Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
- public void run () {
- System.out.println("Shutdown hook running");
- List<Strip> strips = registry.getStrips();
- for (Strip strip : strips) {
- for (int i=0; i<strip.getLength (); i++)
- strip.setPixel(#000000, i);
- }
- for (int i=0; i<100000; i++)
- Thread.yield();
- }
- }
- ));
- }
- 
- 
- */
+
+private void prepareExitHandler () {
+  Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+    public void run () {
+      System.out.println("Shutdown hook running");
+      List<Strip> strips = registry.getStrips();
+      for (Strip strip : strips) {
+        for (int i=0; i<strip.getLength (); i++)
+          strip.setPixel(#000000, i);
+      }
+      for (int i=0; i<100000; i++)
+        Thread.yield();
+    }
+  }
+  ));
+}
+
