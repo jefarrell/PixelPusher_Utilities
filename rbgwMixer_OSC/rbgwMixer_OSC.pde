@@ -9,12 +9,12 @@ OscP5 oscP5;
 // PixelPusher classes and knobs
 DeviceRegistry registry;
 TestObserver testObserver;
-int[] zone0 = new int[4];
-int[] zone1 = new int[4];
-int[] zone2 = new int[4];
+
+int[] board0 = new int[4];
+int[] board1 = new int[4];
+int[] board2 = new int[4];
 int r, g, b, w;
 
-// Setup controlP5 knobs
 void setup() {
   size(400, 400);
   registry = new DeviceRegistry();
@@ -23,49 +23,66 @@ void setup() {
   prepareExitHandler();
 
   oscP5 = new OscP5(this, 5001);
-  int h = height/4; 
-  int spacing = 300;
 }
 
 
 void draw() {
-  background(#000000);
-  
-  fill(255);
-  text(zone0[0] + ", " + zone0[1]+ ", " + zone0[2]+ ", " + zone0[3], 100, 100);
-  
-  drawStrips(zone0);
-  //drawStrips(zone1);
-  //drawStrips(zone2);
+ // all osc-based, hopefully we don't need draw?
 }
 
 
 
 
 public void oscEvent(OscMessage theOscMessage) {
-  // zone will tell it which board
-  // separate port for strip?
-  // then get RGBW values, use those to set knob
-  // probably use a global array?
+  // address will tell it which board
+  // all strips per board get same color
+  println("/////////////////////////////");
   println(theOscMessage.arguments());
-  for (int i = 0; i < theOscMessage.arguments().length; i++) {
-    zone0[0] = (Integer) theOscMessage.arguments()[0];
-    zone0[1] = (Integer) theOscMessage.arguments()[1];
-    zone0[2] = (Integer) theOscMessage.arguments()[2];
-    zone0[3] = (Integer) theOscMessage.arguments()[3];
-    //zone1[0] = (Integer) theOscMessage.arguments()[4];
-    //zone1[1] = (Integer) theOscMessage.arguments()[5];
-    //zone1[2] = (Integer) theOscMessage.arguments()[6];
-    //zone1[3] = (Integer) theOscMessage.arguments()[7];
-    //zone2[0] = (Integer) theOscMessage.arguments()[8];
-    //zone2[1] = (Integer) theOscMessage.arguments()[9];
-    //zone2[2] = (Integer) theOscMessage.arguments()[10];
-    //zone2[3] = (Integer) theOscMessage.arguments()[11];
-  }
+  println("/////////////////////////////");
+  
+  String addr = theOscMessage.addrPattern();
+  
+  switch(addr) {
+   case "zero":
+     board0[0] = (Integer) theOscMessage.arguments()[0];
+     board0[1] = (Integer) theOscMessage.arguments()[1];
+     board0[2] = (Integer) theOscMessage.arguments()[2];
+     board0[3] = (Integer) theOscMessage.arguments()[3];
+     drawStrips(board0,0);
+     break;
+   
+   case "one":
+     board1[0] = (Integer) theOscMessage.arguments()[0];
+     board1[1] = (Integer) theOscMessage.arguments()[1];
+     board1[2] = (Integer) theOscMessage.arguments()[2];
+     board1[3] = (Integer) theOscMessage.arguments()[3];
+     drawStrips(board1,1);
+     break;
+     
+   case "two":
+      board2[0] = (Integer) theOscMessage.arguments()[0];
+      board2[1] = (Integer) theOscMessage.arguments()[1];
+      board2[2] = (Integer) theOscMessage.arguments()[2];
+      board2[3] = (Integer) theOscMessage.arguments()[3];
+      drawStrips(board2,2);
+      break;
+    
+    
+  } //switch case end
+  
 }
 
 
-public void drawStrips(int[] pixels) {
+
+
+public void drawStrips(int[] pixels, int board) {
+  println("~~~~~~~~~~~~~~~~~~~~~~~~");
+  println(pixels, board);
+  println("~~~~~~~~~~~~~~~~~~~~~~~~");
+  
+  
+  
+  
   if (testObserver.hasStrips) {
 
     for (int j=0; j<pixels.length; j++) {
@@ -74,40 +91,27 @@ public void drawStrips(int[] pixels) {
       b = pixels[2];
       w = pixels[3];
     }
-
-    //println("/////////////////////////////");
-    //println(r,g,b,w);
-    //println("/////////////////////////////");
     
     registry.startPushing();
-    List<Strip> strips = registry.getStrips();
+    List<Strip> strips = registry.getStrips(board);
     for (Strip strip : strips) {
-      
-      
-      int stripLength = strip.getLength();
-      
+
+      int stripLength = strip.getLength();      
       for (int i=0; i<stripLength; i+=4) {
-        strip.setPixel(color(r, g, b), i);
+        strip.setPixel(color(g, r, b), i);
       }
       for (int i=1; i<stripLength; i+=4) {
-        strip.setPixel(color(g, w, r), i);
+        strip.setPixel(color(w, g, r), i);
       }
       for (int i=2; i<stripLength; i+=4) {
-        strip.setPixel(color(w, b, g), i);
+        strip.setPixel(color(b, w, g), i);
       }
       for (int i=3; i<stripLength; i+=4) {
-        strip.setPixel(color(b, r, w), i);
+        strip.setPixel(color(r, b, w), i);
       }
     }
   }
 }
-
-
-
-
- 
-
-
 
 
 
